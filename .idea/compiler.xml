@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile default="true" name="Default" enabled="true" />
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="esexample" />
+        <module name="web_flux_demo" />
+      </profile>
+      <profile name="Annotation profile for tcc-transaction-server" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../apache-maven-3.9.9/package/org/springframework/boot/spring-boot-configuration-processor/2.2.13.RELEASE/spring-boot-configuration-processor-2.2.13.RELEASE.jar" />
+        </processorPath>
+        <module name="tcc-transaction-server" />
+      </profile>
+      <profile name="Annotation profile for crazycoding-byte-transaction" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$PROJECT_DIR$/../apache-maven-3.9.9/package/org/projectlombok/lombok/1.18.30/lombok-1.18.30.jar" />
+          <entry name="$PROJECT_DIR$/../apache-maven-3.9.9/package/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
+          <entry name="$PROJECT_DIR$/../apache-maven-3.9.9/package/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
+        </processorPath>
+        <module name="crazycoding-byte-order" />
+        <module name="crazycoding-byte-pay" />
+        <module name="crazycoding-byte-common" />
+        <module name="crazycoding-byte-wms" />
+      </profile>
+      <profile name="Gradle Imported" enabled="true">
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="D:/gradle/package/caches/modules-2/files-2.1/org.projectlombok/lombok/1.18.24/13a394eed5c4f9efb2a6d956e2086f1d81e857d9/lombok-1.18.24.jar" />
+        </processorPath>
+        <module name="gradledemo.model-demo.main" />
+        <module name="gradledemo.chat-demo.test" />
+        <module name="gradledemo.model-demo.test" />
+        <module name="gradledemo.chat-demo.main" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="esdemo" target="17" />
+      <module name="esdemo.main" target="17" />
+      <module name="esdemo.test" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="crazycoding-byte-common" options="-parameters" />
+      <module name="crazycoding-byte-order" options="-parameters" />
+      <module name="crazycoding-byte-pay" options="-parameters" />
+      <module name="crazycoding-byte-transaction" options="-parameters" />
+      <module name="crazycoding-byte-wms" options="-parameters" />
+      <module name="esexample" options="-parameters" />
+      <module name="tcc-transaction-server" options="-parameters" />
+      <module name="web_flux_demo" options="-parameters" />
+    </option>
+  </component>
+</project>

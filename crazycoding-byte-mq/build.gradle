@@ -1,0 +1,106 @@
+buildscript {
+    ext {
+        lombokVersion = '1.18.24'
+        springBootVersion = '3.2.10'
+        springCloudVersion = '2023.0.3'
+        mybatisPlusVersion = '3.5.14'
+        mysqlVersion = '8.0.33'
+        nettyVersion = '4.1.77.Final' // 统一管理Netty版本
+        typesafeConfigVersion = '1.4.3' // 统一管理Config版本
+        protobufVersion = '3.24.4'
+        micrometerVersion = '1.11.5'
+        micrometerRegistryVersion = '1.11.5'
+    }
+}
+
+plugins {
+    id 'org.springframework.boot' version '3.2.10'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'com.google.protobuf' version '0.9.4'
+    id 'java'
+}
+// 配置Protobuf编译器
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:${protobufVersion}"
+    }
+    generateProtoTasks {
+        all().each { task ->
+            // 改为build目录下的生成路径（自动避免重复写入）
+            task.outputs.dir("$buildDir/generated-sources/protobuf/java")
+        }
+    }
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+// 根项目依赖（如果根项目需要使用Config类，必须在这里声明）
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    // Lombok
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation "org.projectlombok:lombok:${lombokVersion}"
+    // Netty
+    implementation "io.netty:netty-all:${nettyVersion}"
+    // 关键：根项目需要用Config，所以在这里添加
+    implementation "com.typesafe:config:${typesafeConfigVersion}"
+    implementation "com.google.protobuf:protobuf-java:${protobufVersion}"
+    implementation "io.micrometer:micrometer-core:${micrometerVersion}"
+    implementation "io.micrometer:micrometer-registry-prometheus:${micrometerRegistryVersion}"
+}
+
+// 全局配置（所有项目通用设置）
+allprojects {
+    apply plugin: 'java'
+    group 'crazycoing-byte-mq'
+    version '0.0.1-SNAPSHOT'
+}
+
+// 子项目配置
+subprojects {
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+    // 错误修正：之前的"io.netty:netty-all:4.1.77.Final"是依赖，不是插件，不能用apply plugin
+    // 插件只能是类似id 'java'、id 'org.springframework.boot'这样的插件ID
+
+    dependencies {
+        // Lombok
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        implementation "org.projectlombok:lombok:${lombokVersion}"
+        // Netty
+        implementation "io.netty:netty-all:${nettyVersion}"
+        // Spring Boot基础
+        implementation "org.springframework.boot:spring-boot-starter"
+        // Typesafe Config（子项目如果需要，在这里添加）
+        implementation "com.typesafe:config:${typesafeConfigVersion}"
+    }
+
+    dependencyManagement {
+        dependencies {
+            dependency "org.projectlombok:lombok:${lombokVersion}"
+            dependency "mysql:mysql-connector-java:${mysqlVersion}"
+            dependency "com.baomidou:mybatis-plus-spring-boot3-starter:${mybatisPlusVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-elasticsearch:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}"
+        }
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+    }
+}

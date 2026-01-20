@@ -1,0 +1,72 @@
+//构建gradle脚本自身需要的资源,可以声明的资源包括依赖项,第三方插件,maven仓库地址
+buildscript {
+    ext {
+        // 1. 修正变量拼写：lombook → lombok
+        lombokVersion = '1.18.24'
+        springBootVersion = '3.2.10'
+        springCloudVersion = '2023.0.3'
+        mybatisPlusVersion = '3.5.14'
+        mysqlVersion = '8.0.33'
+        elasticsearchVersion = '8.11.4'
+    }
+    //设置仓库
+    repositories {
+        mavenLocal()
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://repo.spring.io/snapshot' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+//全局配置 包括root和子项目
+allprojects {
+    apply plugin: 'java'
+    group 'com.yzx'
+    version '0.0.1-SNAPSHOT'
+    tasks.withType(JavaCompile) {
+        options.encoding = 'UTF-8'
+    }
+    repositories {
+        mavenLocal()
+        maven { url 'https://maven.aliyun.com/repository/public' }
+        maven { url 'https://repo.spring.io/milestone' }
+        maven { url 'https://repo.spring.io/snapshot' }
+        mavenCentral() //官方仓库
+    }
+}
+
+//
+subprojects {
+    apply plugin: 'io.spring.dependency-management'//版本管理插件
+    dependencies {
+        // 核心修正1：Lombok仅编译期需要，用compileOnly替代implementation
+        compileOnly 'org.projectlombok:lombok'
+        // 核心修正2：主代码的注解处理器（Lombok生效关键）
+        annotationProcessor 'org.projectlombok:lombok'
+        // 补充：测试代码的Lombok注解处理器（测试类用@Slf4j不会报错）
+        testCompileOnly 'org.projectlombok:lombok'
+        testAnnotationProcessor 'org.projectlombok:lombok'
+    }
+    dependencyManagement {
+        dependencies {
+            dependency "org.projectlombok:lombok:${lombokVersion}"
+            dependency "mysql:mysql-connector-java:${mysqlVersion}"
+            dependency "com.baomidou:mybatis-plus-spring-boot3-starter:${mybatisPlusVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+            // 3. 统一版本：用springBootVersion代替写死的3.2.0
+            dependency "org.springframework.boot:spring-boot-starter-data-elasticsearch:${springBootVersion}"
+            dependency "org.elasticsearch:elasticsearch:${elasticsearchVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}"
+        }
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+    }
+}

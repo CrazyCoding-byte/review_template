@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="FrameworkDetectionExcludesConfiguration">
+    <file type="web" url="file://$PROJECT_DIR$/crazycoding-byte-gateway" />
+    <file type="web" url="file://$PROJECT_DIR$/crazycoding-byte-http" />
+    <file type="web" url="file://$PROJECT_DIR$/crazycoding-byte-mq" />
+    <file type="web" url="file://$PROJECT_DIR$/crazycoding-byte-orm" />
+    <file type="web" url="file://$PROJECT_DIR$/crazycoding-byte-registerwithconfig" />
+    <file type="web" url="file://$PROJECT_DIR$/esdemo" />
+    <file type="web" url="file://$PROJECT_DIR$/gradledemo" />
+  </component>
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/web_flux_demo/pom.xml" />
+        <option value="$PROJECT_DIR$/tcc-transaction/tcc-transaction-server/pom.xml" />
+        <option value="$PROJECT_DIR$/esexample/pom.xml" />
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/pom.xml" />
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/crazycoding-byte-order/pom.xml" />
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/crazycoding-byte-pay/pom.xml" />
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/crazycoding-byte-wms/pom.xml" />
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/crazycoding-byte-common/pom.xml" />
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/transaction-center/pom.xml" />
+      </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/crazycoding-byte-transaction/transaction-center/pom.xml" />
+      </set>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" project-jdk-name="17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

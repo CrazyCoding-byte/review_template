@@ -1,0 +1,62 @@
+buildscript {
+    ext {
+        lombokVersion = '1.18.24'
+        nettyVersion = '4.1.118.Final'
+        springBootVersion = '3.2.10' // Spring Boot版本决定Spring Security版本，绝对兼容
+    }
+}
+
+plugins {
+    id 'io.spring.dependency-management' version '1.1.6' // 兼容Gradle 9.x
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+// 引入Spring Boot BOM，自动管理Spring Security版本（不会找不到依赖）
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+    }
+}
+
+dependencies {
+    // Netty核心依赖
+    implementation "io.netty:netty-all:${nettyVersion}"
+    implementation "io.netty:netty-codec-http:${nettyVersion}"
+    implementation "io.netty:netty-codec-http2:${nettyVersion}"
+    implementation "io.netty:netty-handler:${nettyVersion}"
+
+    // Spring OAuth2（由Spring Boot BOM自动指定版本，绝对存在）
+    implementation "org.springframework.security:spring-security-oauth2-resource-server" // 补充资源服务器依赖
+    implementation "org.springframework.security:spring-security-oauth2-jose"
+    // JJWT（备选）
+    implementation "io.jsonwebtoken:jjwt-api:0.11.5"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:0.11.5"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:0.11.5"
+
+    // 工具类
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation "org.projectlombok:lombok:${lombokVersion}"
+
+    // 测试
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.2'
+}
+
+allprojects {
+    apply plugin: 'java'
+    group 'crazycoing-byte-http'
+    version '0.0.1-SNAPSHOT'
+}

@@ -1,0 +1,76 @@
+buildscript {
+    ext {
+        // 1. 修正变量拼写：lombook → lombok
+        lombokVersion = '1.18.24'
+        springBootVersion = '3.2.10'
+        springCloudVersion = '2023.0.3'
+        mybatisPlusVersion = '3.5.14'
+        mysqlVersion = '8.0.33'
+    }
+}
+plugins {
+    id 'org.springframework.boot' version '3.2.10'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'java'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/public' }
+    maven { url 'https://repo.spring.io/milestone' }
+    maven { url 'https://repo.spring.io/snapshot' }
+}
+
+// 2. 根项目的依赖（启动类在根项目，必须单独声明，subprojects配置不作用于根项目）
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+    implementation "org.projectlombok:lombok:${lombokVersion}"
+    implementation "io.netty:netty-all:4.1.77.Final"
+}
+
+// 全局配置（所有项目，包括根项目和子项目）
+allprojects {
+    apply plugin: 'java'
+    group 'crazycoing-byte-gateway'
+    version '0.0.1-SNAPSHOT'
+}
+
+// 子项目配置（仅作用于子模块，根项目不包含在内）
+subprojects {
+    apply {
+        plugin('org.springframework.boot')
+        plugin('io.netty:netty-all:4.1.77.Final')
+        plugin('java')
+    }
+    dependencies {
+        annotationProcessor "org.projectlombok:lombok:${lombokVersion}"
+        implementation "org.projectlombok:lombok:${lombokVersion}"
+        implementation "io.netty:netty-all:4.1.77.Final"
+        implementation "org.springframework.boot:spring-boot-starter"
+    }
+    dependencyManagement {
+        dependencies {
+            dependency "org.projectlombok:lombok:${lombokVersion}"
+            dependency "mysql:mysql-connector-java:${mysqlVersion}"
+            dependency "com.baomidou:mybatis-plus-spring-boot3-starter:${mybatisPlusVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
+            // 3. 统一版本：用springBootVersion代替写死的3.2.0
+            dependency "org.springframework.boot:spring-boot-starter-data-elasticsearch:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-jpa:${springBootVersion}"
+            dependency "org.springframework.boot:spring-boot-starter-data-mongodb:${springBootVersion}"
+        }
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+            mavenBom "org.springframework.boot:spring-boot-dependencies:${springBootVersion}"
+        }
+    }
+}
