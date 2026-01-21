@@ -14,6 +14,12 @@ import (
 	"unicode/utf8"
 )
 
+var (
+	count int
+	mutex sync.Mutex //互斥锁
+	wg    sync.WaitGroup
+)
+
 type MyInt int
 type User struct {
 	Name string
@@ -397,6 +403,9 @@ func goroutin4() {
 }
 
 // Channel 是 goroutine 之间的 “管道”，既可以传递数据，也可以实现同步。
+/**
+channel+goroutine 一起有点像java的异步编排
+*/
 func goroutin5() {
 	ch := make(chan string)
 	go func() {
@@ -408,10 +417,131 @@ func goroutin5() {
 	msg := <-ch // 阻塞，直到有发送方
 	fmt.Println("主goroutine：收到数据：", msg)
 }
+func goroutin6() {
+	ch := make(chan int, 2)
+	ch <- 1
+	ch <- 2
+	fmt.Println("发送了俩个数据缓冲区已满")
+	fmt.Println("开始接收数据")
+	fmt.Println("接受数据", <-ch)
+	//再发送1个数据,缓冲区又满
+	ch <- 3
+	//遍历接受所有数据(直到channel关闭)
+	defer close(ch) //类似java的关闭流 defer类似java的finally
+	for num := range ch {
+		fmt.Println("接受数据:", num)
+	}
+
+}
+
+/*
+*
+单向Channel
+*/
+func producer(ch chan<- int) {
+	defer close(ch)
+	for i := 0; i < 5; i++ {
+		ch <- i
+	}
+	fmt.Println("生产者结束")
+}
+
+// 消费端是没有关闭流权限的
+func consumer(ch <-chan int) {
+	for num := range ch {
+		fmt.Println("消费者：", num)
+	}
+}
+func goroutin7() {
+	ch := make(chan int, 2)
+	go producer(ch)
+	consumer(ch)
+}
+
+/*
+3. 同步方式 3：sync.Mutex（互斥锁）
+用于解决共享资源竞争（多个 goroutine 同时修改同一个变量），核心方法：
+mutex.Lock()：加锁，独占资源；
+mutex.Unlock()：解锁，释放资源（必须defer，避免 panic 导致锁未释放）。
+*/
+
+func increment() {
+	defer wg.Done()
+	for i := 0; i < 1000; i++ {
+		mutex.Lock()
+		count++
+		mutex.Unlock()
+	}
+}
+func goroutin8() {
+	wg.Add(2)
+	go increment()
+	go increment()
+
+	wg.Wait()
+	fmt.Printf("最终计数器值：%d（预期2000）\n", count)
+}
+
+func makeOrNotMakeDiff() {
+	//不make:仅声明,未初始化底层数组
+	var s []int
+	fmt.Println("不make的切片:", s)
+	fmt.Println("s==nil?:", s == nil) //输出:true
+	fmt.Println("len(s):", len(s))    //输出:0
+	fmt.Println("cap(s)", cap(s))     //输出:0
+	// 错误：直接索引赋值会panic（无底层数组）
+	// s[0] = 1 // panic: index out of range [0] with length 0
+
+	// 可以append：首次append会自动分配底层数组
+	s = append(s, 1)
+	fmt.Println("append后：")
+	fmt.Println("s == nil:", s == nil) // 输出：false（已分配底层数组）
+	fmt.Println("s:", s)               // 输出：[1]
+
+	// make创建：指定长度3，容量3
+	s1 := make([]int, 3)
+	fmt.Println("make的切片：")
+	fmt.Println("s == nil:", s1 == nil) // 输出：false
+	fmt.Println("len(s):", len(s1))     // 输出：3
+	fmt.Println("cap(s):", cap(s1))     // 输出：3
+
+}
 func reflect() {
 
 }
 func main() {
-	goroutin5()
+	// 1. 共享资源（所有 goroutine 想修改的变量）
 
+	// 2. 创建 Channel：传递“加 1”的指令（这里用 bool 占位，仅表示“要加 1”）
+	ch := make(chan bool, 10000)
+
+	// 3. 专属 goroutine：唯一能修改 count 的角色（串行处理，无竞争）
+	go func() {
+		for range ch { // 只要 Channel 有指令，就执行加 1
+			count++
+		}
+	}()
+	time.Sleep(10 * time.Second)
+	fmt.Println("当前的count", count)
+	// 4. 启动 10 个 goroutine，每个发 1000 个“加 1”指令（不直接改 count）
+	var wg sync.WaitGroup
+	wg.Add(10)
+	for i := 0; i < 10; i++ {
+		go func() {
+			defer wg.Done()
+			for j := 0; j < 1000; j++ {
+				ch <- true // 发指令：要加 1
+			}
+		}()
+	}
+
+	// 5. 等所有指令发完，关闭 Channel
+	wg.Wait()
+	close(ch)
+
+	// 6. 等专属 goroutine 处理完所有指令（sleep 简化，生产用 doneChan 更严谨）
+	time.Sleep(100 * time.Millisecond)
+
+	// 7. 结果必然是 10000（无任何竞争）
+	fmt.Printf("最终 count = %d（预期 10000）\n", count)
 }
